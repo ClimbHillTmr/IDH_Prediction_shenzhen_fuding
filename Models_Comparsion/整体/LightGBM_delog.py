@@ -1,16 +1,17 @@
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
-from auc_delong_xu import auc_ci_Delong
+from utils.auc_delong_xu import auc_ci_Delong
 import pickle
 import sys
 import numpy as np
 from sklearn.model_selection import train_test_split
 
+import sys
+
 sys.path.append("..")
-from Method_Utils.train_untils import Iterate_columns, quantile_99, Align_standard
-from Methods.split_methods.fuding_test import fuding_test
-from Models_Comparsion.compare_auc_delong_xu import delong_roc_variance, delong_roc_test
+
+from utils.compare_auc_delong_xu import delong_roc_variance, delong_roc_test
 
 features = [
     "性别",
@@ -20,8 +21,8 @@ features = [
     # "患者状态",
     "透前收缩压",
     "透前舒张压",
-    # "透后收缩压",
-    # "透后舒张压",
+    "透后收缩压",
+    "透后舒张压",
     "透析龄_天数",
     "透析年龄",
     # "透析器",
@@ -49,35 +50,35 @@ features = [
     "透前体重-干体重",
     "瘘管使用时间",
     "首次透析年龄",
-    # "高血压诊断",
-    # "透中高血压_计算",
-    # "涨幅时间点比值",
-    # "涨幅时间点比值区间",
-    # "涨幅时间点差值",
-    # "涨幅时间点差值区间",
-    # "透析中收缩压_mean",
-    # "透析中收缩压_std",
-    # "透析中舒张压_mean",
-    # "透析中舒张压_std",
-    # "透析中脉搏_mean",
-    # "透析中脉搏_std",
+    # "低血压诊断",
+    "透中低血压_计算",
+    # "降幅时间点比值",
+    # "降幅时间点比值区间",
+    # "降幅时间点差值",
+    # "降幅时间点差值区间",
+    "透析中收缩压_mean",
+    "透析中收缩压_std",
+    "透析中舒张压_mean",
+    "透析中舒张压_std",
+    "透析中脉搏_mean",
+    "透析中脉搏_std",
     # "平均动脉压_mean",
     # "平均动脉压_std",
-    # "超滤率_mean",
-    # "超滤率_std",
-    # "超滤量MAX",
+    "超滤率_mean",
+    "超滤率_std",
+    "超滤量MAX",
     # "超滤量_mean",
     # "超滤量_std",
-    # "静脉压_mean",
-    # "静脉压_std",
-    # "动脉压_mean",
-    # "动脉压_std",
-    # "血流速_mean",
-    # "血流速_std",
-    # "透析液温度_mean",
-    # "透析液温度_std",
-    # "跨膜压_mean",
-    # "跨膜压_std",
+    "静脉压_mean",
+    "静脉压_std",
+    "动脉压_mean",
+    "动脉压_std",
+    "血流速_mean",
+    "血流速_std",
+    "透析液温度_mean",
+    "透析液温度_std",
+    "跨膜压_mean",
+    "跨膜压_std",
     # "历史平均患者状态",
     # "历史平均透析前预设UFV",
     "历史平均透前体重",
@@ -92,9 +93,9 @@ features = [
     "历史平均实际透析时长",
     "历史平均透前收缩压",
     "历史平均透前舒张压",
-    "历史平均涨幅时间点比值区间",
-    "历史平均涨幅时间点差值区间",
-    "历史平均透中高血压_计算",
+    "历史平均降幅时间点比值区间",
+    "历史平均降幅时间点差值区间",
+    "历史平均透中低血压_计算",
     "历史平均透析中收缩压_mean",
     "历史平均透析中舒张压_mean",
     "历史平均透析中脉搏_mean",
@@ -108,6 +109,13 @@ features = [
     "历史平均跨膜压_mean",
 ]
 
+target = [
+    "新_透中低血压_计算",
+    # "降幅时间点比值区间",
+    # "降幅时间点差值区间",
+]
+
+
 
 def load_model(file_path):
     with open(file_path, "rb") as f:
@@ -115,28 +123,26 @@ def load_model(file_path):
     return model
 
 
-targets = [
-    "新_透中低血压_计算",
-    # "降幅时间点比值区间",
-    # "降幅时间点差值区间",
-]
-dataset_path = "/Users/cht/Documents/GitHub/Intradialytic_Hypertension_Classification/透前预测_透中高血压/Final_data/深医_final_data 透前动脉压_HDH.csv"
-
 # 读取数据集
-dataset = pd.read_csv(dataset_path)
-
-X = dataset[features]
-y = dataset[targets]
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=0, shuffle=True
+X = pd.read_csv(
+    "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/fuding_dataset_新_透中低血压_计算透后模型.csv"
 )
 
-output_file_evaluate_models = "results_evaluate_models" + str(target) + ".csv"
+y = pd.read_csv(
+    "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/fuding_dataset_target_新_透中低血压_计算透后模型.csv"
+)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X[features], y[target], test_size=0.2, random_state=0, shuffle=True
+)
+
+y_test = y_test.values
+
+output_file_evaluate_models = "results_evaluate_models" + str(target) + "_透前.csv"
 model_paths = {
-    "LGBM": "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/Methods/Models/Results/LGBM/LGBM_model_Number_of_results_target=新_透中低血压_计算.pickle",
-    "TabNet": "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/Methods/Models/Results/SVM/SVM_model_Number_of_results_target=新_透中低血压_计算.pickle",
-    "SVM": "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/Methods/Models/Results/SVM/SVM_model_Number_of_results_target=新_透中低血压_计算.pickle",
+    "LGBM": "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/Methods/Models/Results/LGBM/LGBM_model_Number_of_results_target=新_透中低血压_计算_透后模型.pickle",
+    "TabNet": "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/Methods/Models/Results/TabNet/TabNet_model_Number_of_results_target=新_透中低血压_计算_透后模型.pickle",
+    "SVM": "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/Methods/Models/Results/SVM/SVM_model_Number_of_results_target=新_透中低血压_计算_透后模型.pickle",
 }
 
 models = {name: load_model(path) for name, path in model_paths.items()}
@@ -162,16 +168,9 @@ results = pd.DataFrame(
 )
 
 # 计算p值
-y_pred_LGBM = models["LGBM"].predict_proba(X_test)[:, 1]
-if target != "透中高血压_计算":
-    y_pred_LGBM = models["LGBM"].predict_proba(X_test)
+y_pred_LGBM = models["LGBM"].predict_proba(X_test.values)[:, 1]
 
-auc_LGBM = roc_auc_score(
-    y_test,
-    y_pred_LGBM,
-    average="weighted",
-    multi_class="ovr",
-)
+auc_LGBM = roc_auc_score(y_test, y_pred_LGBM)
 _, auc_var_delong_LGBM = delong_roc_variance(y_test, y_pred_LGBM)
 
 model_names.append("LGBM")
@@ -179,27 +178,26 @@ auc_var_delongs.append(auc_var_delong_LGBM)
 aucs.append(auc_LGBM)
 
 with open(
-    "/Users/cht/Documents/GitHub/Intradialytic_Hypertension_Classification/透前预测_透中高血压/透前模型/Results/SVM/SVM_model target = "
-    + str(target)
-    + ".pickle",
+    "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/Methods/Models/Results/SVM/SVM_model_Number_of_results_target=新_透中低血压_计算_透后模型.pickle",
     "rb",
 ) as f:
     SVM_model = pickle.load(f)
 
 with open(
-    "/Users/cht/Documents/GitHub/Intradialytic_Hypertension_Classification/透前预测_透中高血压/透前模型/Results/TabNet/TabNet_model target = "
-    + str(target)
-    + ".pickle",
+    "/Users/cht/Documents/GitHub/IDH_Prediction_shenzhen_fuding/Methods/Models/Results/TabNet/TabNet_model_Number_of_results_target=新_透中低血压_计算_透后模型.pickle",
     "rb",
 ) as f:
     TabNet_model = pickle.load(f)
 
 for model, model_name in zip(
     [
-        SVM_model,
         TabNet_model,
+        SVM_model,
     ],
-    ["SVM", "TabNet"],
+    [
+        "TabNet",
+        "SVM",
+    ],
 ):
     print(model_name)
     print(model)
@@ -211,8 +209,6 @@ for model, model_name in zip(
     auc = roc_auc_score(
         y_test,
         y_pred,
-        average="weighted",
-        multi_class="ovr",
     )
 
     _, auc_var_delong = delong_roc_variance(y_test, y_pred)

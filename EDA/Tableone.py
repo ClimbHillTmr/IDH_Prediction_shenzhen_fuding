@@ -191,12 +191,12 @@ categorical = [
     # "降幅时间点差值区间",
 ]
 
-groupby = ["透中低血压_计算"]
+groupby = ["新_透中低血压_计算"]
 nonnormal = ["透析年龄"]
-labels = {"透中低血压_计算": "透中低血压"}
+labels = {"新_透中低血压_计算": "透中低血压"}
 
 mytable = TableOne(
-    dataset[features],
+    dataset[features + targets],
     categorical=categorical,
     groupby=groupby,
     nonnormal=nonnormal,

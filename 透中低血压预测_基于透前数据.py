@@ -18,7 +18,7 @@ from Method_Utils.train_untils import (
     preprocessing_data,
 )
 
-# from Methods.Models.LightGBM_model import LightGBM_model
+from Methods.Models.LightGBM_model import LightGBM_model
 
 from Methods.Models.TabNet import TabNet_model
 from Methods.Models.C_SVM_model import SVM_model
@@ -177,17 +177,12 @@ for target in targets:
     y = dataset[target]
 
     X = Iterate_columns(X)
-    X.to_csv("fuding_dataset_" + str(target) + ".csv")
-    y.to_csv("fuding_dataset_target_" + str(target) + ".csv")
+    X.to_csv("fuding_dataset_" + str(target) + "透前模型.csv")
+    y.to_csv("fuding_dataset_target_" + str(target) + "透前模型.csv")
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=0
-    )
 
     class_weight = calculate_class_weights(dataset[target])
 
-    X.info()
-    X_test.info()
 
     # if len(class_weight) > 2:
 
@@ -217,17 +212,17 @@ for target in targets:
     print("验证集总长度：", len(X_val), "；label 为 1 的长度", np.sum(y_val))
     print("测试集总长度：", len(X_test), "；label 为 1 的长度", np.sum(y_test))
 
-    # model, eval_scores = LightGBM_model(
-    #     X_train,
-    #     X_test,
-    #     y_train,
-    #     y_test,
-    #     X_val,
-    #     y_val,
-    #     class_weights=class_weight,
-    #     target=target,
-    #     kinds="透前模型",
-    # )
+    model, eval_scores = LightGBM_model(
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+        X_val,
+        y_val,
+        class_weights=class_weight,
+        target=target,
+        kinds="透前模型",
+    )
 
     # SVM_model(
     #     X_train=X_train,
@@ -241,14 +236,14 @@ for target in targets:
     #     kinds="透前模型",
     # )
 
-    TabNet_model(
-        X_train=X_train,
-        X_test=X_test,
-        y_train=y_train,
-        y_test=y_test,
-        X_val=X_val,
-        y_val=y_val,
-        class_weights=class_weight,
-        target=target,
-        kinds="透前模型",
-    )
+    # TabNet_model(
+    #     X_train=X_train,
+    #     X_test=X_test,
+    #     y_train=y_train,
+    #     y_test=y_test,
+    #     X_val=X_val,
+    #     y_val=y_val,
+    #     class_weights=class_weight,
+    #     target=target,
+    #     kinds="透前模型",
+    # )

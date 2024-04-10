@@ -44,7 +44,7 @@ def SVM_model(
     """
     model = SVC(
         class_weight=class_weights,
-        random_state=0,
+        random_state=0,probability=True
         # Add other SVM parameters as needed
     )
 

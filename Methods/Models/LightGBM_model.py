@@ -58,11 +58,11 @@ def LightGBM_model(
 
     param_dist = {
         "boosting_type": ["gbdt", "dart", "goss", "rf"],
-        "max_depth": [50, 100],
+        "max_depth": [5, 10, 20, 50, 100],
         "random_state": [0],
         "learning_rate": [0.001, 0.005, 0.01, 0.05, 0.1],
-        "num_leaves": [50, 100],
-        "n_estimators": [50, 100],
+        "num_leaves": [5, 10, 20, 50, 100],
+        "n_estimators": [5, 10, 20, 50, 100],
         "subsample": [0.6],
         "colsample_bytree": [0.6],
         "class_weight": ["balanced", class_weights],
@@ -137,7 +137,7 @@ def LightGBM_model(
         plt.ylim([0.0, 1.0])
         plt.ylabel("Recall")
         plt.xlabel("Fall-out")
-        plt.show()
+        # plt.show()
         plt.savefig(
             os.path.join(
                 current_dir,
@@ -158,7 +158,7 @@ def LightGBM_model(
             max_num_features=20,
         )
         plt.title("LightGBM model’s Gain Feature Importances")
-        plt.show()
+        # plt.show()
         plt.savefig(
             os.path.join(
                 current_dir,
@@ -244,7 +244,7 @@ def LightGBM_model(
     viz = ClassificationReport(model, title="Training Report of LGBM", cmap="PuBu")
     viz.fit(X_train, y_train)
     viz.score(X_train, y_train)
-    viz.show()
+    # viz.show()
     fig = viz.poof()
     fig.figure.savefig(
         os.path.join(
